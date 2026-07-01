@@ -2,12 +2,13 @@
 ## Setup
 + 2023 Apple M2 Macbook Pro
 + UTM software
-+ Kali Linux virtual machines - 2023 + 2026
++ Kali Linux 2023 VM
 + Capstone UTM boxes: Blue, Academy, 
 ## Preliminary Problems
 Unfortunately, my newer 2026 Kali VM doesn't play nicely with these boxes. For some reason, the 2026 Kali machine and the capstone boxes always end up on different subnets (192.168.64.x vs. 192.168.65.x respectively), meaning that the two VMs could never communicate. I thus tried to use my older 2023 Kali VM, and fortunately the issue was resolved and both machines were now on the same subnet! To ensure the machines could talk to each other, I briefly pinged my first machine, Blue, to confirm that there was no packet loss.
 ## Blue
 Blue is an intentionally vulnerable Windows 7 Ultimate machine with 2 accounts, User and Administrator. I was given the credentials for both accounts, however Administrator is the obvious choice for this scenario since I am trying to "root" the machine. Once I logged in, I ran ipconfig to check the IP address of the box then switched over to Kali to run Nmap on the box using its IP address and see which ports were open.  
-As pictured in the screenshot, the only ports open on this machine were 1, 139, 445, etc. From this list of open ports, only 139 and 445 were of real importance to me as these ports are associated with SMB. Using the Nmap scan, I determined that port 139 was running MS Windows netbios-ssn and port 445 was running MS Windows 7-10 windows-ds. More modern systems rely on port 445 for SMB rather than port 139, so from this point forward I focused particularly on port 445. 
-I began my enumeration process by looking deeper into the service running on port 445, being MS Windows 7-10 windows-ds. 
+As pictured in the screenshot, the only ports open on this machine were 1, 139, 445, etc. From this list of open ports, only 139 and 445 were of real importance to me as these ports are associated with SMB. Using the Nmap scan, I determined that port 139 was running MS Windows netbios-ssn (SMBv1) and port 445 was running MS Windows 7-10 windows-ds. More modern systems rely on port 445 for SMB rather than port 139, so from this point forward I focused particularly on port 445. 
+I began my enumeration process by looking deeper into the service running on port 445, being MS Windows 7-10 windows-ds. This service's primary vulnerability is to remote code execution (RCE) flaws in SMBv1 (present on this system's port 139) and SMBv3. The most notable of these RCE vulnerabilities is EternalBlue [(MS17-010/CVE-2017-0144)](https://nvd.nist.gov/vuln/detail/CVE-2017-0144), which I personally feel was almost too hinted at by the box's name! EternalBlue is a critical RCE vulnerability in the SMBv1 server that allows unauthenticated attackers to send specially crafted packets to a target and gain privilege escalation. Given the prevalence of EternalBlue in conversations related to port 445, plus the hint in the box name, I decided to try the exploit for this box.  
+To ensure there were no less extreme methods to gaining access to the box before jumping straight to EternalBlue, I utilized smbclient to see which file shares, if any, were accessible to me.
 ## Academy
