@@ -2,5 +2,6 @@
 ## Preliminary Problems
 Unfortunately, my newer 2026 Kali VM doesn't play nicely with these boxes. For some reason, the 2026 Kali machine and the capstone boxes always end up on different subnets (192.168.64.x vs. 192.168.65.x respectively), meaning that the two VMs could never communicate. I thus tried to use my older 2023 Kali VM, and fortunately the issue was resolved and both machines were now on the same subnet! To ensure the machines could talk to each other, I briefly pinged my first machine, Blue, to confirm that there was no packet loss.
 ## Blue
-Blue is an intentionally vulnerable Windows 7 Ultimate machine with 2 accounts, User and Administrator. We were given the credentials 
+Blue is an intentionally vulnerable Windows 7 Ultimate machine with 2 accounts, User and Administrator. I was given the credentials for both accounts, however Administrator is the obvious choice for this scenario since I am trying to "root" the machine. Once I logged in, I ran ipconfig to check the IP address of the box then switched over to Kali to run Nmap on the box using its IP address and see which ports were open.  
+As pictured in the screenshot, the only ports open on this machine were 1, 139, 445, etc. From this list of open ports, only 139 and 445 were of real importance to me as these ports are associated with SMB. Using the Nmap scan, I determined that port 139 was running MS Windows netbios-ssn (which hosts SMBv1) and port 445 was running MS Windows 7-10 windows-ds.
 ## Academy
